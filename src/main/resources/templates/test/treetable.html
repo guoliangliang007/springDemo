@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <header th:replace="header::html"></header>
+</head>
+<body>
+<div class="layui-btn-group">
+    <button class="layui-btn" id="btn-expand">全部展开</button>
+    <button class="layui-btn" id="btn-fold">全部折叠</button>
+    <button class="layui-btn" id="btn-refresh">刷新表格</button>
+</div>
+<table id="table1" class="layui-table" lay-filter="table1"></table>
+<script>
+    layui.config({
+        base: '/'
+    }).extend({
+        treetable: 'treetable-lay/treetable'
+    }).use(['layer', 'table', 'treetable'], function () {
+        var $ = layui.jquery;
+        var table = layui.table;
+        var layer = layui.layer;
+        var treetable = layui.treetable;
+
+        // 渲染表格
+        var renderTable = function () {
+            layer.load(2);
+            treetable.render({
+                treeColIndex: 1,
+                treeSpid: 0,
+                treeIdName: 'id',
+                treePidName: 'pid',
+                treeDefaultClose: true,
+                treeLinkage: false,
+                elem: '#table1',
+                url: '/treedata'
+                ,response: {
+                dataName: 'datas' //规定数据列表的字段名称，默认：data 自定义
+                },
+                page: false,
+                cols: [
+                    [
+                    {type: 'numbers'},
+                    {field: 'name', title: 'name'},
+                    {field: 'id', title: 'id'},
+                    {field: 'sex', title: 'sex'},
+                    {field: 'pid', title: 'pid'},
+                    {templet: '#oper-col', title: 'oper'}
+                ]
+                ],
+                done: function () {
+                    layer.closeAll('loading');
+                }
+            });
+        };
+
+        renderTable();
+
+        $('#btn-expand').click(function () {
+            treetable.expandAll('#table1');
+        });
+
+        $('#btn-fold').click(function () {
+            treetable.foldAll('#table1');
+        });
+
+        $('#btn-refresh').click(function () {
+            renderTable();
+        });
+
+        //监听工具条
+        table.on('tool(table1)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+
+            if (layEvent === 'del') {
+                layer.msg('删除' + data.id);
+            } else if (layEvent === 'edit') {
+                layer.msg('修改' + data.id);
+            }
+        });
+    });
+</script>
+</body>
+</html>

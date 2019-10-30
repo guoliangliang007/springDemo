@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html class="x-admin-sm" xmlns:th="http://www.thymeleaf.org">
+  
+  <head>
+    <meta charset="UTF-8">
+    <title>欢迎页面-X-admin2.2</title>
+      <header th:replace="header::html"></header>
+     <!-- <script type="text/javascript" th:src="@{/zTree/jquery.ztree.all.min.js}"></script>-->
+     <script type="text/javascript" th:src="@{/zTree/ztree-menu-1.1.js}"></script>
+      <link rel="stylesheet" th:href="@{/zTree/zTreeStyle/zTreeStyle.css}"/>
+      <link rel="stylesheet" th:href="@{/zTree/demo.css}"/>
+      <script type="text/javascript" th:src="@{/zTree/jquery.ztree.core.min.js}"></script>
+      <script type="text/javascript" th:src="@{/zTree/jquery.ztree.excheck.js}"></script>
+  </head>
+  
+  <body>
+    <div class="layui-fluid">
+        <div class="layui-row">
+            <form action="" method="post" class="layui-form layui-form-pane">
+                <div class="layui-form-item">
+                    <label for="name" class="layui-form-label">
+                        <span class="x-red">*</span>菜单名
+                    </label>
+                    <div class="layui-input-inline">
+                        <input type="text" id="name" name="name" required="" lay-verify="required"
+                        autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label for="name" class="layui-form-label">
+                        <span class="x-red">*</span>样式
+                    </label>
+                    <div class="layui-input-inline">
+                        <input type="text" id="css" name="css" required=""
+                               autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label for="name" class="layui-form-label">
+                        <span class="x-red">*</span>链接
+                    </label>
+                    <div class="layui-input-inline">
+                        <input type="text" id="href" name="href" required="" lay-verify="required"
+                               autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label for="name" class="layui-form-label">
+                        <span class="x-red">*</span>类型
+                    </label>
+                    <div class="layui-input-inline">
+                        <!--<input type="hidden" id="type" name="type" required="" lay-verify="required"
+                               autocomplete="off" class="layui-input">-->
+                        <select class="layui-select" name="type">
+                            <option value="1">菜单</option>
+                            <option value="0">按钮</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label for="name" class="layui-form-label">
+                        <span class="x-red">*</span>权限值
+                    </label>
+                    <div class="layui-input-inline">
+                        <input type="text" id="permission" name="permission" required="" lay-verify="required"
+                               autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label for="name" class="layui-form-label">
+                        <span class="x-red">*</span>排序
+                    </label>
+                    <div class="layui-input-inline">
+                        <input type="text" id="sort" name="sort" required="" lay-verify="required"
+                               autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text">
+                    <label class="col-md-2 ">
+                        上级菜单
+                    </label>
+                    <div class="col-md-10">
+                         <ul id ="treeDemo" class="ztree"></ul>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                <button class="layui-btn" lay-submit="" lay-filter="add">增加</button>
+              </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        layui.use(['form','layer'], function() {
+            $ = layui.jquery;
+            var form = layui.form
+                , layer = layui.layer;
+
+            //自定义验证规则
+            form.verify({
+            });
+
+            //监听提交
+            form.on('submit(add)',
+                function (data) {
+                var permissionid = f();
+                if(permissionid == false){
+                    layer.alert("选择一个节点");
+                    return false;
+                }
+                data.field.pId = permissionid;
+                console.log(data);
+                //发异步，把数据提交给php
+                    $.ajax({
+                        url: "/permission/addSave",
+                        type: 'POST',
+                        data: data.field,
+                        dataType: 'json',
+                        success: function (result) {
+                            console.log(result)
+                            var code = result.code;
+                            if (code == 500 || code == 5000100 || code == 5000101 || code == 5000102) {
+                                layer.alert(result.msg);
+                            } else {
+                                layer.alert("增加成功", {icon: 6}, function () {
+                                    //关闭当前frame
+                                    xadmin.close();
+                                    // 可以对父窗口进行刷新
+                                    xadmin.father_reload();
+                                });
+                            }
+                        }
+                    });
+                    return false;
+            });
+            function f() {
+                var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+                var nodes = treeObj.getCheckedNodes(true); //获得所有选中的节点对象
+                /*  for (var i = 0; i < nodes.length; i++) {
+                      if(i==nodes.length-1){
+                          ids += nodes[i]['id']
+                      }else{
+                          ids += nodes[i]['id'] +","
+                      }
+                  }*/
+                if(nodes.length>=2){
+                    return false;
+                }else if(nodes.length==1){
+                    console.log(nodes[0]['id'])
+                    return nodes[0]['id'];
+                }else{
+                    return 0;
+                }
+            }
+        });
+
+    </script>
+    <SCRIPT type="text/javascript">
+        <!--
+        var setting = {
+            view: {
+                selectedMulti: false
+            },
+            check: {
+                enable: true,
+                /*chkboxType:{
+                    "Y" : "ps",
+                    "N" : "ps"
+                },*/
+               // chkStyle : "checkbox",
+                chkStyle :"radio",
+                radioType: "level"
+
+            },
+            data: {
+                simpleData: {
+                    enable: true,
+                    idKey : "id",
+                    pIdKey : "pid" //自定义节点属性值
+                }
+            },
+            callback: {
+                beforeCheck: beforeCheck,
+                onCheck: onCheck
+            }
+        };
+       function getMenuTree(){
+           var zNodes = "";
+           $.ajax({
+               type:'POST',
+               url:'/permission/listAllPermissionTypeIsOne',
+               contentType:"application/json;charts=utf-8",
+               async:false,
+               success:function (ret) {
+                   zNodes = ret.data;
+               }
+           });
+            /*zNodes =[
+               { id:8, pId:9, name:"用户管理",checked:true, open:true},
+               { id:81, pId:8, name:"用户新增"},
+               { id:881, pId:81, name:"新增"},
+               { id:89, pId:81, name:"删除"},
+               { id:1, pId:0, name:"随意勾选 1", open:true},
+               { id:11, pId:1, name:"随意勾选 1-1"},
+               { id:12, pId:1, name:"随意勾选 1-2", open:true},
+               { id:121, pId:12, name:"随意勾选 1-2-1"},
+               { id:122, pId:12, name:"随意勾选 1-2-2"},
+               { id:2, pId:0, name:"禁止勾选 2", open:true, doCheck:false},
+               { id:21, pId:2, name:"禁止勾选 2-1", doCheck:false},
+               { id:22, pId:2, name:"禁止勾选 2-2", checked:true, open:true, doCheck:false},
+               { id:221, pId:22, name:"禁止勾选 2-2-1", doCheck:false},
+               { id:222, pId:22, name:"禁止勾选 2-2-2", checked:true, doCheck:false},
+               { id:23, pId:2, name:"禁止勾选 2-3", doCheck:false}
+           ];*/
+           return zNodes;
+        }
+
+
+        var code, log, className = "dark";
+        function beforeCheck(treeId, treeNode) {
+            className = (className === "dark" ? "":"dark");
+            showLog("[ "+getTime()+" beforeCheck ]&nbsp;&nbsp;&nbsp;&nbsp;" + treeNode.name );
+            return (treeNode.doCheck !== false);
+        }
+        function onCheck(e, treeId, treeNode) {
+            showLog("[ "+getTime()+" onCheck ]&nbsp;&nbsp;&nbsp;&nbsp;" + treeNode.name );
+        }
+        function showLog(str) {
+            if (!log) log = $("#log");
+            log.append("<li class='"+className+"'>"+str+"</li>");
+            if(log.children("li").length > 6) {
+                log.get(0).removeChild(log.children("li")[0]);
+            }
+        }
+        function getTime() {
+            var now= new Date(),
+                h=now.getHours(),
+                m=now.getMinutes(),
+                s=now.getSeconds(),
+                ms=now.getMilliseconds();
+            return (h+":"+m+":"+s+ " " +ms);
+        }
+
+        function checkNode(e) {
+            var zTree = $.fn.zTree.getZTreeObj("treeDemo"),
+                type = e.data.type,
+                nodes = zTree.getSelectedNodes();
+            if (type.indexOf("All")<0 && nodes.length == 0) {
+                alert("请先选择一个节点");
+            }
+
+            if (type == "checkAllTrue") {
+                zTree.checkAllNodes(true);
+            } else if (type == "checkAllFalse") {
+                zTree.checkAllNodes(false);
+            } else {
+                var callbackFlag = $("#callbackTrigger").attr("checked");
+                for (var i=0, l=nodes.length; i<l; i++) {
+                    if (type == "checkTrue") {
+                        zTree.checkNode(nodes[i], true, false, callbackFlag);
+                    } else if (type == "checkFalse") {
+                        zTree.checkNode(nodes[i], false, false, callbackFlag);
+                    } else if (type == "toggle") {
+                        zTree.checkNode(nodes[i], null, false, callbackFlag);
+                    }else if (type == "checkTruePS") {
+                        zTree.checkNode(nodes[i], true, true, callbackFlag);
+                    } else if (type == "checkFalsePS") {
+                        zTree.checkNode(nodes[i], false, true, callbackFlag);
+                    } else if (type == "togglePS") {
+                        zTree.checkNode(nodes[i], null, true, callbackFlag);
+                    }
+                }
+            }
+        }
+
+        function setAutoTrigger(e) {
+            var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+            zTree.setting.check.autoCheckTrigger = $("#autoCallbackTrigger").attr("checked");
+            $("#autoCheckTriggerValue").html(zTree.setting.check.autoCheckTrigger ? "true" : "false");
+        }
+
+        $(document).ready(function(){
+            var ztreeObj = $.fn.zTree.init($("#treeDemo"), setting, getMenuTree());
+            ztreeObj.expandAll(true);
+            $("#checkTrue").bind("click", {type:"checkTrue"}, checkNode);
+            $("#checkFalse").bind("click", {type:"checkFalse"}, checkNode);
+            $("#toggle").bind("click", {type:"toggle"}, checkNode);
+            $("#checkTruePS").bind("click", {type:"checkTruePS"}, checkNode);
+            $("#checkFalsePS").bind("click", {type:"checkFalsePS"}, checkNode);
+            $("#togglePS").bind("click", {type:"togglePS"}, checkNode);
+            $("#checkAllTrue").bind("click", {type:"checkAllTrue"}, checkNode);
+            $("#checkAllFalse").bind("click", {type:"checkAllFalse"}, checkNode);
+            $("#autoCallbackTrigger").bind("change", {}, setAutoTrigger);
+        });
+        //-->
+    </SCRIPT>
+  </body>
+
+</html>

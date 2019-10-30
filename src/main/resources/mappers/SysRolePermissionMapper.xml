@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.SysRolePermissionMapper">
+
+    <insert id="insert" parameterType="sysRolePermission">
+        insert into sys_role_permission (roleid,permissionid) values
+        <foreach collection="list" separator="," item="permissionid">
+            (#{id},#{permissionid})
+        </foreach>
+    </insert>
+</mapper>

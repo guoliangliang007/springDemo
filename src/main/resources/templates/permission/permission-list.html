@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html class="x-admin-sm" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>欢迎页面-X-admin2.2</title>
+        <header th:replace="header::html"></header>
+       <!-- <link rel="stylesheet" th:href="@{/treetable-lay/treetable.css}">
+        <script th:src="@{/treetable-lay/treetable.js}" charset="utf-8"></script>-->
+    </head>
+    <body>
+        <div class="x-nav">
+          <span class="layui-breadcrumb">
+            <a href="">首页</a>
+            <a href="">演示</a>
+            <a>
+              <cite>导航元素</cite></a>
+          </span>
+          <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" onclick="location.reload()" title="刷新">
+            <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i></a>
+        </div>
+        <div class="layui-fluid">
+            <div class="layui-row layui-col-space15">
+                <div class="layui-col-md12">
+                    <div class="layui-card">
+                        <div class="layui-card-header">
+                            <button class="layui-btn" id="btn-expand">全部展开</button>
+                            <button class="layui-btn" id="btn-fold">全部折叠</button>
+                            <button class="layui-btn" id="btn-refresh">刷新表格</button>
+                            <button class="layui-btn" onclick="xadmin.open('菜单权限','/permission/add',800,600)"><i class="layui-icon"></i>添加</button>
+                        </div>
+                        <div class="layui-card-body ">
+                            <table id="table1" class="layui-table" lay-filter="table1"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </body>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+    <script>
+        layui.config({
+            base: '/'
+        }).extend({
+            treetable: 'treetable-lay/treetable'
+        }).use(['layer', 'table', 'treetable'], function () {
+            var $ = layui.jquery;
+            var table = layui.table;
+            var layer = layui.layer;
+            var treetable = layui.treetable;
+       // 渲染表格
+        var renderTable = function () {
+            layer.load(2);
+            treetable.render({
+                treeColIndex: 1,
+                treeSpid: 0,
+                treeIdName: 'id',
+                treePidName: 'pid',
+                //treeDefaultClose: true,
+                treeLinkage: false, //是否默认折叠
+                elem: '#table1',
+                url: '/permission/list',
+                page: true ,
+                cols: [
+                    [
+                    {type: 'numbers'},
+                    {field: 'name', title: '名称'},
+                    {field: 'href', title: '路径'},
+                    {field: 'sort', title: '排序'},
+                    {field: 'permission', title: '资源标识'},
+                    {field: 'type', title: '类型',templet:function (d) {
+                            return d.type =='1' ? "菜单":"按钮";
+                        }},
+                    {title:'操作',toolbar:'#barDemo'}
+                ]
+                ],
+                done: function () {
+                    layer.closeAll('loading');
+                }
+            });
+        };
+
+       renderTable();
+            $('#btn-expand').click(function () {
+                treetable.expandAll('#table1');
+            });
+
+            $('#btn-fold').click(function () {
+                treetable.foldAll('#table1');
+            });
+
+            $('#btn-refresh').click(function () {
+                renderTable();
+            });
+            //监听公锯条
+            table.on('tool(table1)',function (obj) {
+                var data = obj.data;
+                if(obj.event =='del'){
+                    layer.confirm('确定删除吗?',function (index) {
+                        $.ajax({
+                            url:"/user/delete",
+                            type:"GET",
+                            data:{id:data.id},
+                            dataType:'json',
+                            success:function(result){
+                                layer.alert("删除成功",{icon:1},function (index1) {
+                                    layer.close(index1);
+                                    x_admin_father_reload();
+                                });
+                            }
+                        });
+                    });
+                }else if(obj.event =='edit'){
+                    xadmin.open('菜单权限修改','/permission/edit/?id='+data.id,'800','600');
+                }
+            });
+    });
+    </script>
+</html>
