@@ -1,0 +1,153 @@
+/*
+Navicat MySQL Data Transfer
+
+Source Server         : SIT1
+Source Server Version : 50624
+Source Host           : localhost:3306
+Source Database       : test
+
+Target Server Type    : MYSQL
+Target Server Version : 50624
+File Encoding         : 65001
+
+Date: 2019-11-07 13:35:50
+*/
+
+SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for `sys_permission`
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_permission`;
+CREATE TABLE `sys_permission` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parentid` int(11) DEFAULT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `css` varchar(30) DEFAULT NULL,
+  `href` varchar(200) DEFAULT NULL,
+  `type` tinyint(4) DEFAULT NULL,
+  `permission` varchar(50) DEFAULT NULL,
+  `sort` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of sys_permission
+-- ----------------------------
+INSERT INTO `sys_permission` VALUES ('1', '0', '用户管理', null, null, '1', null, null);
+INSERT INTO `sys_permission` VALUES ('2', '1', '用户管理', null, null, '1', null, null);
+INSERT INTO `sys_permission` VALUES ('3', '2', '查询', null, null, '0', null, null);
+INSERT INTO `sys_permission` VALUES ('4', '2', '新增', '/user/add', null, '0', 'sys:user:add', null);
+INSERT INTO `sys_permission` VALUES ('5', '2', '删除', null, null, '0', null, null);
+INSERT INTO `sys_permission` VALUES ('6', '0', '审核', null, null, '1', null, null);
+INSERT INTO `sys_permission` VALUES ('7', '6', '风控审核', null, null, '1', null, null);
+INSERT INTO `sys_permission` VALUES ('8', '6', '财务审核', '', 'cw', '1', '1', '200');
+INSERT INTO `sys_permission` VALUES ('9', '1', '修改密码', '', 'update', '1', 'update', '10');
+
+-- ----------------------------
+-- Table structure for `sys_role`
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_role`;
+CREATE TABLE `sys_role` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(50) NOT NULL,
+  `describes` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of sys_role
+-- ----------------------------
+INSERT INTO `sys_role` VALUES ('1', 'ROLE_ADMIN', '超级管理员');
+INSERT INTO `sys_role` VALUES ('2', 'ROLE_USER', '风控管理员');
+INSERT INTO `sys_role` VALUES ('3', 'test', 'test1');
+INSERT INTO `sys_role` VALUES ('17', '1', '1');
+
+-- ----------------------------
+-- Table structure for `sys_role_permission`
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_role_permission`;
+CREATE TABLE `sys_role_permission` (
+  `roleid` int(11) NOT NULL COMMENT '角色id',
+  `permissionid` int(11) NOT NULL COMMENT '权限id',
+  KEY `roleid_wk` (`roleid`),
+  KEY `permissionid_wk` (`permissionid`),
+  CONSTRAINT `permissionid_wk` FOREIGN KEY (`permissionid`) REFERENCES `sys_permission` (`id`),
+  CONSTRAINT `roleid_wk` FOREIGN KEY (`roleid`) REFERENCES `sys_role` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of sys_role_permission
+-- ----------------------------
+INSERT INTO `sys_role_permission` VALUES ('17', '1');
+INSERT INTO `sys_role_permission` VALUES ('17', '2');
+INSERT INTO `sys_role_permission` VALUES ('17', '3');
+INSERT INTO `sys_role_permission` VALUES ('17', '5');
+
+-- ----------------------------
+-- Table structure for `sys_role_user`
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_role_user`;
+CREATE TABLE `sys_role_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sys_user_id` int(11) NOT NULL,
+  `sys_role_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sys_user_wk` (`sys_user_id`),
+  KEY `sys_role_wk` (`sys_role_id`),
+  CONSTRAINT `sys_role_wk` FOREIGN KEY (`sys_role_id`) REFERENCES `sys_role` (`id`),
+  CONSTRAINT `sys_user_wk` FOREIGN KEY (`sys_user_id`) REFERENCES `sys_user` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of sys_role_user
+-- ----------------------------
+INSERT INTO `sys_role_user` VALUES ('1', '1', '17');
+INSERT INTO `sys_role_user` VALUES ('2', '2', '2');
+INSERT INTO `sys_role_user` VALUES ('3', '12', '1');
+INSERT INTO `sys_role_user` VALUES ('4', '13', '1');
+INSERT INTO `sys_role_user` VALUES ('5', '14', '2');
+INSERT INTO `sys_role_user` VALUES ('6', '15', '2');
+INSERT INTO `sys_role_user` VALUES ('7', '16', '2');
+INSERT INTO `sys_role_user` VALUES ('8', '17', '1');
+INSERT INTO `sys_role_user` VALUES ('9', '18', '2');
+INSERT INTO `sys_role_user` VALUES ('10', '19', '2');
+INSERT INTO `sys_role_user` VALUES ('11', '20', '1');
+
+-- ----------------------------
+-- Table structure for `sys_user`
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_user`;
+CREATE TABLE `sys_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(200) NOT NULL,
+  `phone` varchar(11) NOT NULL,
+  `status` varchar(2) NOT NULL,
+  `birthdy` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of sys_user
+-- ----------------------------
+INSERT INTO `sys_user` VALUES ('1', 'admin', '$2a$10$Gv0ae2nhTgnAZRzY/rbst.Gjyvy0wZx1tJPtARYwX.Y7jm0.vVF8e', '17610999101', '1', '1995-06-02');
+INSERT INTO `sys_user` VALUES ('2', 'abel', '$2a$10$q1hsw1/j.ZBxXN4xXfBFVeX9QgkJyUyXg8Z.jlXFL.Z.bzY/bTX7G', '15131099921', '0', '1994-06-02');
+INSERT INTO `sys_user` VALUES ('3', 'root', 'root', '15121099921', '1', '1993-12-11');
+INSERT INTO `sys_user` VALUES ('4', 'root2', 'root', '15131093921', '0', '1993-12-11');
+INSERT INTO `sys_user` VALUES ('5', 'root3', 'root', '15131099121', '0', '1993-12-11');
+INSERT INTO `sys_user` VALUES ('6', 'root4', 'root', '15131089921', '1', '1993-12-11');
+INSERT INTO `sys_user` VALUES ('7', 'user', 'user', '15138780566', '0', '1993-12-11');
+INSERT INTO `sys_user` VALUES ('8', 'xiaomiao', 'miao', '13525462111', '1', '1993-12-11');
+INSERT INTO `sys_user` VALUES ('9', 'xiaohua1', 'xiaohua', '13525846233', '1', '1993-12-11');
+INSERT INTO `sys_user` VALUES ('10', 'xiaohua2', 'xiaohua', '13251306622', '0', '1992-05-06');
+INSERT INTO `sys_user` VALUES ('11', 'label2', 'label', '17966610333', '0', '1994-05-06');
+INSERT INTO `sys_user` VALUES ('12', 'test', 'cddadmincdd', '15138780411', '1', '1994-05-06');
+INSERT INTO `sys_user` VALUES ('13', 'test2', 'cddadmincdd', '15124109991', '1', '1994-05-06');
+INSERT INTO `sys_user` VALUES ('14', 'admin1', 'cddadmincdd', '15110999107', '1', '1994-05-06');
+INSERT INTO `sys_user` VALUES ('15', 'admin2', 'cddadmincdd', '15120999107', '1', '1995-06-03');
+INSERT INTO `sys_user` VALUES ('16', 'admin3', 'cddadmincdd', '17610999107', '1', '2015-09-04');
+INSERT INTO `sys_user` VALUES ('17', 'admin4', 'cddadmincdd', '15138780576', '1', '1994-05-06');
+INSERT INTO `sys_user` VALUES ('18', 'admin5', 'cddadmincdd', '15138780255', '1', '2005-07-08');
+INSERT INTO `sys_user` VALUES ('19', 'admin6', 'cddadmincdd', '15178780578', '1', '1994-08-07');
+INSERT INTO `sys_user` VALUES ('20', 'admin7', 'cddadmincdd', '17610999105', '1', '1994-05-06');
