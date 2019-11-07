@@ -50,7 +50,7 @@ public class UserController {
 
 
     @RequestMapping("/user/add")
-    @PreAuthorize("hasAuthority('sys:user:add')")
+   // @PreAuthorize("hasAuthority('sys:user:add')")
     public String user_add(PageRequest request){
         return "user/admin-add";
     }
@@ -62,7 +62,7 @@ public class UserController {
     }
     @ApiOperation(value = "修改用户信息",notes ="根据用户id修改")
     @ApiImplicitParam(name="sysUser",value = "用户实体类",required = false)
-    @RequestMapping(value = "/user/edit",method = RequestMethod.POST)
+    @RequestMapping(value = "/user/edit",method = RequestMethod.GET)
     public String user_edit(SysUser sysUser,Model model){
         model.addAttribute(sysUserService.getSysUserById(sysUser.getId()));
         return "user/admin-edit";
