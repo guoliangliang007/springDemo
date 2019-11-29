@@ -2,19 +2,25 @@ package com.example.demo.redis;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class RedisUtil {
 
-    @Autowired
+   //@Autowired //使用该注解启动报错 //对象注入
+    @Resource  //名字注入
     private RedisTemplate<String,Object> redisTemplate;
 
+    /*public RedisUtil(RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }*/
     //============================common===============================
 
     /**
@@ -290,7 +296,7 @@ public class RedisUtil {
      * @param value
      * @return
      */
-    public boolean sHasKey(String key,Object value){
+    public boolean sHashKey(String key,Object value){
         try {
             return redisTemplate.opsForSet().isMember(key,value);
         }catch (Exception e){
